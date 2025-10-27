@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FooduApp - Payment Processing</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍔</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            padding: 60px 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            max-width: 500px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .success-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 30px;
+            background: rgba(74, 222, 128, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: scaleIn 0.5s ease-in-out;
+        }
+
+        @keyframes scaleIn {
+            0% {
+                transform: scale(0);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .checkmark {
+            font-size: 60px;
+            color: #4ade80;
+            animation: checkmark 0.5s ease-in-out 0.3s both;
+        }
+
+        @keyframes checkmark {
+            0% {
+                opacity: 0;
+                transform: scale(0);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 15px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 30px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .info {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-top: 30px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .reference {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 15px;
+            word-break: break-all;
+        }
+
+        /* Floating particles animation */
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        .particle:nth-child(1) {
+            width: 10px;
+            height: 10px;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .particle:nth-child(2) {
+            width: 15px;
+            height: 15px;
+            left: 30%;
+            animation-delay: 0.5s;
+        }
+
+        .particle:nth-child(3) {
+            width: 8px;
+            height: 8px;
+            left: 50%;
+            animation-delay: 1s;
+        }
+
+        .particle:nth-child(4) {
+            width: 12px;
+            height: 12px;
+            left: 70%;
+            animation-delay: 1.5s;
+        }
+
+        .particle:nth-child(5) {
+            width: 10px;
+            height: 10px;
+            left: 90%;
+            animation-delay: 2s;
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating particles -->
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+
+    <div class="container">
+        <div class="success-icon">
+            <div class="checkmark">✓</div>
+        </div>
+        
+        <h1>Payment Successful!</h1>
+        <p class="subtitle">Your order is being processed</p>
+        
+        <div class="spinner"></div>
+        
+        <div class="info">
+            <p>🔄 Redirecting back to FooduApp...</p>
+            <p style="margin-top: 10px; font-size: 12px;">
+                This window will close automatically
+            </p>
+        </div>
+
+        <div class="reference" id="reference"></div>
+    </div>
+
+    <script>
+        // This page serves as a callback URL for Paystack payments
+        // The FooduApp detects this URL and automatically closes the payment screen
+        
+        // Extract payment details from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const reference = urlParams.get('reference') || urlParams.get('trxref');
+        const status = urlParams.get('status');
+        
+        // Display reference if available
+        if (reference) {
+            document.getElementById('reference').textContent = `Reference: ${reference}`;
+        }
+        
+        // Log for debugging
+        console.log('=== FooduApp Payment Callback ===');
+        console.log('Reference:', reference);
+        console.log('Status:', status);
+        console.log('Full URL:', window.location.href);
+        console.log('================================');
+        
+        // Send message to parent window (Flutter app)
+        if (window.parent && window.parent !== window) {
+            const message = {
+                status: status === 'success' ? 'success' : 'failed',
+                reference: reference,
+                message: status === 'success' ? 'Payment completed successfully' : 'Payment failed'
+            };
+            
+            console.log('Sending postMessage to parent:', message);
+            window.parent.postMessage(message, '*');
+        }
+        
+        // Optional: Try to close the window after 5 seconds (for web browsers)
+        setTimeout(() => {
+            try {
+                window.close();
+            } catch (e) {
+                console.log('Could not close window automatically');
+            }
+        }, 5000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+{
+  "project_info": {
+    "project_number": "79667505598",
+    "project_id": "food-9d1af",
+    "storage_bucket": "food-9d1af.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:79667505598:android:b9a02f38bfdad9361731ef",
+        "android_client_info": {
+          "package_name": "com.bruno.admin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "79667505598-37qbba3dei7v1j8943gr03efvj02df0e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bruno.admin",
+            "certificate_hash": "00f77c2c0d795b6abf0f2daf39825346759bacfe"
+          }
+        },
+        {
+          "client_id": "79667505598-c0damgsrbda0npibcmgpmm4jisim30v6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXOwZ5vEuwgDSKCPo6FvpY9hKQsbKnBDw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "79667505598-c0damgsrbda0npibcmgpmm4jisim30v6.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "79667505598-grqqfrcr6e0pt8a2825jff303hli4hno.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.bruno.admin"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:79667505598:android:96ee03b52635992a1731ef",
+        "android_client_info": {
+          "package_name": "com.codingwitht.foodu"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "79667505598-2396g47hheb6hon03akv7aj37d837r3h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.codingwitht.foodu",
+            "certificate_hash": "00f77c2c0d795b6abf0f2daf39825346759bacfe"
+          }
+        },
+        {
+          "client_id": "79667505598-c0damgsrbda0npibcmgpmm4jisim30v6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXOwZ5vEuwgDSKCPo6FvpY9hKQsbKnBDw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "79667505598-c0damgsrbda0npibcmgpmm4jisim30v6.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "79667505598-grqqfrcr6e0pt8a2825jff303hli4hno.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.bruno.admin"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
