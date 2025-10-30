@@ -41,12 +41,30 @@ class AddItemToBasket extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          IconButton(onPressed: () => Get.back(), icon: const Icon(Icons.arrow_back, color: Colors.white)),
+                          IconButton(
+                            onPressed: () => Get.back(),
+                            icon: const Icon(Icons.arrow_back, color: Colors.white),
+                            iconSize: 24,
+                            padding: const EdgeInsets.all(8),
+                            constraints: const BoxConstraints(
+                              minWidth: 48,
+                              minHeight: 48,
+                            ),
+                          ),
                           SizedBox(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                IconButton(onPressed: () {}, icon: const Icon(Icons.share, color: Colors.white)),
+                                IconButton(
+                                  onPressed: () {},
+                                  icon: const Icon(Icons.share, color: Colors.white),
+                                  iconSize: 24,
+                                  padding: const EdgeInsets.all(8),
+                                  constraints: const BoxConstraints(
+                                    minWidth: 48,
+                                    minHeight: 48,
+                                  ),
+                                ),
                               ],
                             ),
                           )

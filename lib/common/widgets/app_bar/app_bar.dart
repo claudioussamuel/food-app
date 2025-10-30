@@ -33,14 +33,21 @@ class TAppBar extends StatelessWidget implements PreferredSizeWidget {
       child: AppBar(
         automaticallyImplyLeading: false,
         title: title,
-        leadingWidth: showBackButton ? 25 : null,
+        leadingWidth: showBackButton ? 56 : null,
         centerTitle: false,
         actions: actions,
         bottom: bottomBar,
         leading: showBackButton
             ? IconButton(
-                onPressed: () => Get.back(),
-                icon: const Icon(Iconsax.arrow_left))
+                onPressed: leadingOnPressed ?? () => Get.back(),
+                icon: const Icon(Iconsax.arrow_left),
+                iconSize: 24,
+                padding: const EdgeInsets.all(8),
+                constraints: const BoxConstraints(
+                  minWidth: 48,
+                  minHeight: 48,
+                ),
+              )
             : leadingImage != null
                 ? CircleAvatar(
                     backgroundImage: NetworkImage(leadingImage!),
