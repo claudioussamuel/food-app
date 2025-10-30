@@ -374,16 +374,35 @@ class FoodCrudScreen extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Obx(
-                            () => OutlinedButton.icon(
-                              onPressed: productController.isUploading.value
-                                  ? null
-                                  : pickFromGallery,
-                              icon: const Icon(Icons.photo_library),
-                              label: Text(
-                                productController.isUploading.value
-                                    ? 'Uploading...'
-                                    : 'Pick from gallery',
-                              ),
+                            () => Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                OutlinedButton.icon(
+                                  onPressed: productController.isUploading.value
+                                      ? null
+                                      : pickFromGallery,
+                                  icon: productController.isUploading.value
+                                      ? const SizedBox(
+                                          width: 16,
+                                          height: 16,
+                                          child: CircularProgressIndicator(strokeWidth: 2),
+                                        )
+                                      : const Icon(Icons.photo_library),
+                                  label: Text(
+                                    productController.isUploading.value
+                                        ? 'Uploading... ${(productController.uploadProgress.value * 100).toStringAsFixed(0)}%'
+                                        : 'Pick from gallery',
+                                  ),
+                                ),
+                                if (productController.isUploading.value) ...[
+                                  const SizedBox(height: TSizes.xs),
+                                  LinearProgressIndicator(
+                                    value: productController.uploadProgress.value,
+                                    backgroundColor: TColors.borderLight,
+                                    valueColor: AlwaysStoppedAnimation<Color>(TColors.primary),
+                                  ),
+                                ],
+                              ],
                             ),
                           ),
                         ),

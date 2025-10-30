@@ -1,10 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:foodu/features/home_action_menu/model/category_model.dart';
 import 'package:foodu/features/home_action_menu/controller/branch_controller.dart';
 import 'package:foodu/data/repositories/menu/category_repository.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'dart:io';
 
 class CategoryController extends GetxController {
   static CategoryController get instance => Get.find();
@@ -13,6 +13,7 @@ class CategoryController extends GetxController {
   var categories = <CategoryModel>[].obs;
   var isLoading = false.obs;
   var isUploading = false.obs;
+  var uploadProgress = 0.0.obs;
 
   final CategoryRepository _categoryRepository = CategoryRepository();
   final ImagePicker _picker = ImagePicker();
@@ -206,35 +207,138 @@ class CategoryController extends GetxController {
     }
   }
 
-  /// Pick image from gallery and upload to Firebase Storage (Admin function)
-  Future<String?> pickImageAndUpload({String? suggestedName}) async {
+  /// Pick image from gallery and upload to Firebase Storage with progress tracking (Admin function)
+  Future<String?> pickImageAndUpload({String? suggestedName, int retryCount = 0}) async {
     try {
       isUploading.value = true;
+      uploadProgress.value = 0.0;
       
       // Pick image from gallery
-      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-      if (image == null) return null;
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1920,
+        maxHeight: 1080,
+        imageQuality: 85,
+      );
+      
+      if (image == null) {
+        isUploading.value = false;
+        return null;
+      }
+
+      // Read file as bytes (works on all platforms)
+      final bytes = await image.readAsBytes();
+      
+      // Validate file size (max 5MB)
+      if (bytes.length > 5 * 1024 * 1024) {
+        Get.snackbar(
+          'Error',
+          'Image size must be less than 5MB',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        isUploading.value = false;
+        return null;
+      }
 
       // Create a reference to Firebase Storage
       final storageRef = FirebaseStorage.instance.ref();
       final fileName = suggestedName != null 
-          ? '${suggestedName}_${DateTime.now().millisecondsSinceEpoch}.jpg'
+          ? '${suggestedName.replaceAll(' ', '_')}_${DateTime.now().millisecondsSinceEpoch}.jpg'
           : 'category_${DateTime.now().millisecondsSinceEpoch}.jpg';
       final imageRef = storageRef.child('categories/$fileName');
 
-      // Upload the file
-      final uploadTask = imageRef.putFile(File(image.path));
+      // Detect image format
+      String contentType;
+      String extension;
+      
+      // Check for PNG signature
+      if (bytes.length > 8 &&
+          bytes[0] == 0x89 &&
+          bytes[1] == 0x50 &&
+          bytes[2] == 0x4E &&
+          bytes[3] == 0x47) {
+        contentType = 'image/png';
+        extension = 'png';
+      } else {
+        contentType = 'image/jpeg';
+        extension = 'jpg';
+      }
+      
+      // Update filename with correct extension
+      final correctedFileName = suggestedName != null 
+          ? '${suggestedName.replaceAll(' ', '_')}_${DateTime.now().millisecondsSinceEpoch}.$extension'
+          : 'category_${DateTime.now().millisecondsSinceEpoch}.$extension';
+      final correctedImageRef = storageRef.child('categories/$correctedFileName');
+
+      // Upload using putData (works on all platforms)
+      final uploadTask = correctedImageRef.putData(
+        bytes,
+        SettableMetadata(contentType: contentType),
+      );
+      
+      // Listen to upload progress
+      uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+        uploadProgress.value = snapshot.bytesTransferred / snapshot.totalBytes;
+        print('Upload progress: ${(uploadProgress.value * 100).toStringAsFixed(1)}%');
+      });
+      
+      // Wait for upload to complete
       final snapshot = await uploadTask;
       
       // Get download URL
       final downloadUrl = await snapshot.ref.getDownloadURL();
+      
+      // Success feedback
+      Get.snackbar(
+        'Success',
+        'Image uploaded successfully!',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 2),
+      );
+      
       return downloadUrl;
+    } on FirebaseException catch (e) {
+      print('Firebase error uploading image: ${e.code} - ${e.message}');
+      
+      // Retry logic for network errors
+      if (retryCount < 2 && (e.code == 'network-request-failed' || e.code == 'timeout')) {
+        Get.snackbar(
+          'Retrying',
+          'Network issue detected. Retrying upload... (${retryCount + 1}/2)',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.orange,
+          colorText: Colors.white,
+        );
+        await Future.delayed(const Duration(seconds: 2));
+        return pickImageAndUpload(suggestedName: suggestedName, retryCount: retryCount + 1);
+      }
+      
+      Get.snackbar(
+        'Upload Failed',
+        'Failed to upload image: ${e.message ?? "Unknown error"}',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 4),
+      );
+      return null;
     } catch (e) {
       print('Error uploading image: $e');
-      Get.snackbar('Error', 'Failed to upload image');
+      Get.snackbar(
+        'Error',
+        'Failed to upload image. Please try again.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
       return null;
     } finally {
       isUploading.value = false;
+      uploadProgress.value = 0.0;
     }
   }
 }

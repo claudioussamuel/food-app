@@ -1,10 +1,8 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:path/path.dart' as path;
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../data/repositories/personalization/profile_repository.dart';
@@ -28,6 +26,7 @@ class ProfileFormController extends ProfileRepository {
   RxString dropDownValue = 'Gender'.obs;
   var isLoading = false.obs;
   var isUploadingImage = false.obs;
+  var uploadProgress = 0.0.obs;
   var currentProfile = Rxn<ProfileModel>();
 
   // Gender options
@@ -181,25 +180,64 @@ class ProfileFormController extends ProfileRepository {
     }
   }
 
-  /// Upload image to Firebase Storage
-  Future<void> uploadImageToFirebase() async {
+  /// Upload image to Firebase Storage with progress tracking and retry mechanism
+  Future<void> uploadImageToFirebase({int retryCount = 0}) async {
     if (imageFile == null) return;
 
     try {
       isUploadingImage.value = true;
+      uploadProgress.value = 0.0;
+
+      // Read file as bytes (works on all platforms)
+      final bytes = await imageFile!.readAsBytes();
+
+      // Validate file size (max 5MB)
+      if (bytes.length > 5 * 1024 * 1024) {
+        TLoaders.errorSnackBar(
+          title: 'Error',
+          message: 'Image size must be less than 5MB',
+        );
+        isUploadingImage.value = false;
+        return;
+      }
 
       // Get Firebase Storage instance
       final FirebaseStorage storage = FirebaseStorage.instance;
 
-      // Create a unique filename
-      final String fileName =
-          'profile_images/${DateTime.now().millisecondsSinceEpoch}_${path.basename(imageFile!.path)}';
+      // Detect image format
+      String contentType;
+      String extension;
+      
+      // Check for PNG signature
+      if (bytes.length > 8 &&
+          bytes[0] == 0x89 &&
+          bytes[1] == 0x50 &&
+          bytes[2] == 0x4E &&
+          bytes[3] == 0x47) {
+        contentType = 'image/png';
+        extension = 'png';
+      } else {
+        contentType = 'image/jpeg';
+        extension = 'jpg';
+      }
+
+      // Create a unique filename with correct extension
+      final String fileName = 'profile_images/profile_${DateTime.now().millisecondsSinceEpoch}.$extension';
 
       // Create reference to the file location
       final Reference ref = storage.ref().child(fileName);
 
-      // Upload the file
-      final UploadTask uploadTask = ref.putFile(File(imageFile!.path));
+      // Upload using putData (works on all platforms)
+      final UploadTask uploadTask = ref.putData(
+        bytes,
+        SettableMetadata(contentType: contentType),
+      );
+
+      // Listen to upload progress
+      uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+        uploadProgress.value = snapshot.bytesTransferred / snapshot.totalBytes;
+        print('Profile image upload progress: ${(uploadProgress.value * 100).toStringAsFixed(1)}%');
+      });
 
       // Wait for upload to complete
       final TaskSnapshot snapshot = await uploadTask;
@@ -208,20 +246,36 @@ class ProfileFormController extends ProfileRepository {
       final String downloadUrl = await snapshot.ref.getDownloadURL();
       imageUrl.value = downloadUrl;
 
-      // Update image path with Firebase Storage URL
-      // imagePath.value = downloadUrl;
-
-      // TLoaders.successSnackBar(
-      //   title: 'Success',
-      //   message: 'Image uploaded successfully!',
-      // );
+      TLoaders.successSnackBar(
+        title: 'Success',
+        message: 'Profile image uploaded successfully!',
+      );
+    } on FirebaseException catch (e) {
+      print('Firebase error uploading profile image: ${e.code} - ${e.message}');
+      
+      // Retry logic for network errors
+      if (retryCount < 2 && (e.code == 'network-request-failed' || e.code == 'timeout')) {
+        TLoaders.warningSnackBar(
+          title: 'Retrying',
+          message: 'Network issue detected. Retrying upload... (${retryCount + 1}/2)',
+        );
+        await Future.delayed(const Duration(seconds: 2));
+        return uploadImageToFirebase(retryCount: retryCount + 1);
+      }
+      
+      TLoaders.errorSnackBar(
+        title: 'Upload Failed',
+        message: 'Failed to upload image: ${e.message ?? "Unknown error"}',
+      );
     } catch (e) {
+      print('Error uploading profile image: $e');
       TLoaders.errorSnackBar(
         title: 'Upload Error',
-        message: 'Failed to upload image: $e',
+        message: 'Failed to upload image. Please try again.',
       );
     } finally {
       isUploadingImage.value = false;
+      uploadProgress.value = 0.0;
     }
   }
 

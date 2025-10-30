@@ -157,16 +157,35 @@ class CategoryCrudScreen extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Obx(
-                          () => OutlinedButton.icon(
-                            onPressed: categoryController.isUploading.value
-                                ? null
-                                : pickFromGallery,
-                            icon: const Icon(Icons.photo_library),
-                            label: Text(
-                              categoryController.isUploading.value
-                                  ? 'Uploading...'
-                                  : 'Pick from gallery',
-                            ),
+                          () => Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              OutlinedButton.icon(
+                                onPressed: categoryController.isUploading.value
+                                    ? null
+                                    : pickFromGallery,
+                                icon: categoryController.isUploading.value
+                                    ? const SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(strokeWidth: 2),
+                                      )
+                                    : const Icon(Icons.photo_library),
+                                label: Text(
+                                  categoryController.isUploading.value
+                                      ? 'Uploading... ${(categoryController.uploadProgress.value * 100).toStringAsFixed(0)}%'
+                                      : 'Pick from gallery',
+                                ),
+                              ),
+                              if (categoryController.isUploading.value) ...[
+                                const SizedBox(height: TSizes.xs),
+                                LinearProgressIndicator(
+                                  value: categoryController.uploadProgress.value,
+                                  backgroundColor: TColors.borderLight,
+                                  valueColor: AlwaysStoppedAnimation<Color>(TColors.primary),
+                                ),
+                              ],
+                            ],
                           ),
                         ),
                       ),
