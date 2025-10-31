@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:foodu/features/home_action_menu/model/search_food_item_model.dart';
 import 'package:foodu/utils/constants/sizes.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
 class FoodDetailsScreen extends StatelessWidget {
@@ -14,7 +15,7 @@ class FoodDetailsScreen extends StatelessWidget {
         title: Text(item.name, overflow: TextOverflow.ellipsis),
         leading: IconButton(
           icon: const Icon(Iconsax.arrow_left),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Get.back(),
         ),
       ),
       body: SingleChildScrollView(

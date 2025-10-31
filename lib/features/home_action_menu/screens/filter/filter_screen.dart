@@ -17,6 +17,10 @@ class FilterScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Filter'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Get.back(),
+          ),
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(50),
             child: TabBar(

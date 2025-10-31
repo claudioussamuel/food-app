@@ -32,7 +32,7 @@ class PaystackPaymentService extends GetxController {
         'amount': amountInKobo,
         'reference': reference,
         'currency': 'GHS', // Ghana Cedi
-        'callback_url': callbackUrl ?? 'https://ghig-web.github.io', 
+        // No callback_url - we detect completion via WebView URL monitoring (ghig-app approach)
         'metadata': {
           'custom_fields': [
             if (firstName != null)
