@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:foodu/common/styles/spacing_styles.dart';
-import 'package:foodu/common/widgets/app_bar/app_bar.dart';
 import 'package:foodu/features/home_action_menu/model/food_model.dart';
 import 'package:get/get.dart';
 import 'package:foodu/data/repositories/menu/order_repository.dart';
@@ -198,10 +197,7 @@ class CheckoutOrderScreen extends StatelessWidget {
       orderController.setItems(mapped);
     }
     return Scaffold(
-      appBar: const TAppBar(
-        showBackButton: true,
-        title: Text("Checkout Order"),
-      ),
+      appBar: AppBar(title: const Text('Checkout Order')),
       body: SingleChildScrollView(
         child: Padding(
           padding: TSpacingStyles.paddingWithHeightWidth,
