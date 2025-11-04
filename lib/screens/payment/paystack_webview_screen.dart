@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../services/paystack_payment_service.dart';
@@ -23,10 +25,39 @@ class _PaystackWebViewScreenState extends State<PaystackWebViewScreen> {
   @override
   void initState() {
     super.initState();
+    if (kIsWeb) {
+      _handleWebPayment();
+    }
+  }
+
+  Future<void> _handleWebPayment() async {
+    final Uri uri = Uri.parse(widget.paymentUrl);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(
+        uri,
+        webOnlyWindowName: "_self",
+      );
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not launch payment URL ${widget.paymentUrl}')),
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // For web platform, just show loading while redirecting
+    if (kIsWeb) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    // For mobile platforms, use WebView
     WebViewController controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
@@ -61,10 +92,10 @@ class _PaystackWebViewScreenState extends State<PaystackWebViewScreen> {
       ..loadRequest(
         Uri.parse(widget.paymentUrl),
       );
-      print('widget.paymentUrl ${widget.paymentUrl}');
+    print('widget.paymentUrl ${widget.paymentUrl}');
     return SafeArea(
       child: Scaffold(
-        // appBar: AppBar(title: const Text('Complete Payment')),
+        appBar: AppBar(title: const Text('Complete Payment')),
         body: WebViewWidget(controller: controller),
       ),
     );
