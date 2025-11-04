@@ -14,9 +14,8 @@ class UpdateProfileScreen extends StatelessWidget {
     final profileController = Get.put(ProfileFormController(), permanent: true);
 
     return Scaffold(
-      appBar: const TAppBar(
-        showBackButton: true,
-        title: Text("Update Profile"),
+      appBar:  AppBar(
+        title: const Text("Update Profile"),
       ),
       body: SingleChildScrollView(
         child: Padding(
