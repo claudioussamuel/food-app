@@ -31,7 +31,30 @@ class ProfilePicSelection extends StatelessWidget {
                     side: BorderSide.none,
                   ),
                 ),
-                child: _buildProfileImage(controller),
+                child: Stack(
+                  children: [
+                    _buildProfileImage(controller),
+                    // Show circular progress indicator when uploading
+                    if (controller.isUploadingImage.value)
+                      Container(
+                        width: TSizes.imageThumbSize,
+                        height: TSizes.imageThumbSize,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.black.withOpacity(0.5),
+                        ),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            value: controller.uploadProgress.value > 0
+                                ? controller.uploadProgress.value
+                                : null,
+                            strokeWidth: 3,
+                            valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               );
             }),
           ),
