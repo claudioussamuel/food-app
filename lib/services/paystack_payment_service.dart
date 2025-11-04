@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import 'package:foodu/utils/popups/loaders.dart'; 
 import 'package:foodu/screens/payment/paystack_webview_screen.dart';
 
-class PaystackPaymentService extends GetxController {
-  static PaystackPaymentService get instance => Get.find();
+class PaystackPaymentService {
+  static final PaystackPaymentService _instance = PaystackPaymentService._internal();
+  factory PaystackPaymentService() => _instance;
+  PaystackPaymentService._internal();
 
   // Paystack configuration - Replace with your actual keys
   static const String _secretKey =
@@ -14,6 +16,7 @@ class PaystackPaymentService extends GetxController {
 
   /// Initialize payment with Paystack
   Future<PaymentResult> initializePayment({
+    required BuildContext context,
     required String email,
     required double amount,
     required String reference,
@@ -78,7 +81,7 @@ class PaystackPaymentService extends GetxController {
 
           // Launch the payment URL using WebView
           final paymentResult =
-              await _launchPaymentWebView(authorizationUrl, reference);
+              await _launchPaymentWebView(context, authorizationUrl, reference);
 
           return paymentResult;
         } else {
@@ -102,32 +105,22 @@ class PaystackPaymentService extends GetxController {
 
   /// Launch payment URL using WebView
   Future<PaymentResult> _launchPaymentWebView(
-      String url, String reference) async {
+      BuildContext context, String url, String reference) async {
     try {
-      bool paymentSuccess = false;
-      String? paymentMessage;
-
-      // Show WebView for payment
-      await Get.to(
-        () => PaystackWebViewScreen(
-          paymentUrl: url,
-          reference: reference,
-          onPaymentComplete: (success, message) {
-            paymentSuccess = success;
-            paymentMessage = message;
-          },
+      // Show WebView for payment using Navigator.push (ghig-app approach)
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PaystackWebViewScreen(
+            paymentUrl: url,
+            reference: reference,
+          ),
         ),
       );
 
-      if (paymentSuccess) {
-        // Verify the payment with Paystack
-        final verificationResult = await verifyPayment(reference);
-        return verificationResult;
-      } else {
-        return PaymentResult.failure(
-          message: paymentMessage ?? 'Payment was cancelled or failed',
-        );
-      }
+      // After returning from WebView, verify the payment
+      final verificationResult = await verifyPayment(reference);
+      return verificationResult;
     } catch (e) {
       return PaymentResult.failure(message: e.toString());
     }

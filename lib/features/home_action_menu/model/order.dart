@@ -41,7 +41,9 @@ class OrderModel {
       dispatcherEmail: docData?.containsKey('dispatcherEmail') == true
           ? data['dispatcherEmail']
           : null,
-      orderNumber: data['orderNumber'],
+      orderNumber: docData?.containsKey('orderNumber') == true
+          ? data['orderNumber']
+          : null,
       products: _parseProducts(data['products'], data.id),
       endTime:
           data['endTime'] != null ? _parseTimestamp(data['endTime']) : null,
@@ -112,7 +114,9 @@ class OrderModel {
       dispatcherEmail: data.containsKey('dispatcherEmail')
           ? data['dispatcherEmail']
           : null,
-      orderNumber: data['orderNumber'],
+      orderNumber: data.containsKey('orderNumber')
+          ? data['orderNumber']
+          : null,
       products: _parseProducts(data['products'], id),
       endTime:
           data['endTime'] != null ? _parseTimestamp(data['endTime']) : null,

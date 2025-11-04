@@ -99,8 +99,9 @@ class CheckoutOrderScreen extends StatelessWidget {
       final paymentReference = paymentService.generateReference();
       final totalAmount = checkoutController.total;
 
-      // Process payment with Paystack
+      // Process payment with Paystack (pass context for Navigator.push)
       final paymentResult = await paymentService.initializePayment(
+        context: context,
         email: email,
         amount: totalAmount,
         reference: paymentReference,
@@ -178,7 +179,7 @@ class CheckoutOrderScreen extends StatelessWidget {
     final cartController = Get.put(CartController());
     final locationController = Get.put(LocationController());
     final profileController = Get.put(ProfileFormController());
-    final paymentService = Get.put(PaystackPaymentService());
+    final paymentService = PaystackPaymentService(); // Singleton instance
     final branchController = Get.put(BranchController());
 
     // If a single product is provided, use product-quantity flow; otherwise sync cart items
