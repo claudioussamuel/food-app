@@ -6,7 +6,6 @@ import 'package:foodu/utils/constants/sizes.dart';
 import 'package:foodu/utils/helpers/helper_function.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
-import 'package:iconsax/iconsax.dart';
 
 import '../../../home_action_menu/screens/home/widget/horizental_food_list.dart';
 import '../../../home_action_menu/screens/home/widget/verical_food_list.dart';
@@ -26,6 +25,7 @@ class RestaurantDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     Get.put(RestaurantController());
     return Scaffold(
+      appBar: AppBar(title: Text(product?.name ?? 'Restaurant Details')),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,41 +47,6 @@ class RestaurantDetailScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-
-                /// Appbar with Icons
-                Positioned(
-                  top: TSizes.appBarHeight + 8,
-                  right: 0,
-                  left: 0,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: TSizes.defaultSpace),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                            onPressed: () => Get.back(),
-                            icon: const Icon(Iconsax.arrow_left,
-                                color: Colors.white)),
-                        SizedBox(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              IconButton(
-                                  onPressed: () {},
-                                  icon: const Icon(Iconsax.heart,
-                                      color: Colors.white)),
-                              IconButton(
-                                  onPressed: () {},
-                                  icon: const Icon(CupertinoIcons.paperplane,
-                                      color: Colors.white)),
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                )
               ],
             ),
 

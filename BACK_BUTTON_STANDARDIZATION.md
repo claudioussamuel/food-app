@@ -1,7 +1,7 @@
 # Back Button Standardization Update
 
 ## Overview
-Standardized back button implementation across checkout, recommended for you, and food details screens to match the pattern used in admin screens (Manage Meals and Manage Categories).
+Standardized back button implementation across restaurant detail, checkout, recommended for you, and food details screens to match the pattern used in admin screens (Manage Meals and Manage Categories).
 
 ## Changes Made
 
@@ -13,7 +13,49 @@ Standardized back button implementation across checkout, recommended for you, an
 
 ### Updated Screens
 
-#### 1. Checkout Order Screen
+#### 1. Restaurant Detail Screen
+**File:** `lib/features/restaurant_details_and_food_place_order/screen/restaurent_detail/restaurent_detail_screen.dart`
+
+**Before:**
+```dart
+import 'package:flutter/cupertino.dart';
+import 'package:iconsax/iconsax.dart';
+...
+return Scaffold(
+  body: SingleChildScrollView(
+    child: Column(
+      children: [
+        Stack(
+          children: [
+            // Image
+            Positioned(
+              // Custom back button with Get.back()
+              IconButton(
+                onPressed: () => Get.back(),
+                icon: const Icon(Iconsax.arrow_left, color: Colors.white)
+              ),
+            )
+          ]
+        )
+      ]
+    )
+  )
+)
+```
+
+**After:**
+```dart
+// Removed CupertinoIcons and Iconsax imports
+...
+return Scaffold(
+  appBar: AppBar(title: Text(product?.name ?? 'Restaurant Details')),
+  body: SingleChildScrollView(
+    // Removed custom Positioned back button from Stack
+  )
+)
+```
+
+#### 2. Checkout Order Screen
 **File:** `lib/features/restaurant_details_and_food_place_order/screen/checkout_order/checkout_order_screen.dart`
 
 **Before:**
@@ -33,7 +75,7 @@ appBar: const TAppBar(
 appBar: AppBar(title: const Text('Checkout Order')),
 ```
 
-#### 2. Recommended For You Screen
+#### 3. Recommended For You Screen
 **File:** `lib/features/home_action_menu/screens/recommanded_for_you/recommanded_for_you_screen.dart`
 
 **Before:**
@@ -53,7 +95,7 @@ appBar: const TAppBar(
 appBar: AppBar(title: const Text('Recommended For You 😍')),
 ```
 
-#### 3. Food Details Screen
+#### 4. Food Details Screen
 **File:** `lib/features/home_action_menu/screens/details/food_details_screen.dart`
 
 **Before:**
@@ -97,13 +139,16 @@ appBar: AppBar(title: Text(item.name, overflow: TextOverflow.ellipsis)),
 - `TAppBar` custom widget (no longer needed for these screens)
 - `Get.back()` manual navigation (handled automatically)
 - `Iconsax.arrow_left` custom icon (uses Material Design default)
+- `CupertinoIcons` import (no longer needed)
+- Custom `Positioned` back button overlays
 
 ## Testing Recommendations
 
 Test the following navigation flows:
-1. **Checkout Flow:** Home → Product Details → Checkout → Back button works
-2. **Recommended Flow:** Home → Recommended For You → Back button works
-3. **Details Flow:** Home → Search/Browse → Food Details → Back button works
+1. **Restaurant Detail Flow:** Home → Product → Restaurant Details → Back button works
+2. **Checkout Flow:** Home → Product Details → Checkout → Back button works
+3. **Recommended Flow:** Home → Recommended For You → Back button works
+4. **Details Flow:** Home → Search/Browse → Food Details → Back button works
 
 All back buttons should:
 - Display the standard Material Design back arrow
