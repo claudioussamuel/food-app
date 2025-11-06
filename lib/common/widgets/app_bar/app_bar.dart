@@ -39,7 +39,7 @@ class TAppBar extends StatelessWidget implements PreferredSizeWidget {
         bottom: bottomBar,
         leading: showBackButton
             ? IconButton(
-                onPressed: leadingOnPressed ?? () => Get.back(),
+                onPressed: leadingOnPressed ?? () => Navigator.pop(context),
                 icon: const Icon(Iconsax.arrow_left),
                 iconSize: 24,
                 padding: const EdgeInsets.all(8),

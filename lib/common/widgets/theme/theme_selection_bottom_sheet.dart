@@ -35,7 +35,7 @@ class ThemeSelectionBottomSheet extends StatelessWidget {
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               IconButton(
-                onPressed: () => Get.back(),
+                onPressed: () => Navigator.pop(context),
                 icon: const Icon(Icons.close),
               ),
             ],
@@ -50,7 +50,7 @@ class ThemeSelectionBottomSheet extends StatelessWidget {
                 isSelected: themeController.themeMode == ThemeMode.light,
                 onTap: () {
                   themeController.setLightTheme();
-                  Get.back();
+                  Navigator.pop(context);
                 },
               )),
 
@@ -62,7 +62,7 @@ class ThemeSelectionBottomSheet extends StatelessWidget {
                 isSelected: themeController.themeMode == ThemeMode.dark,
                 onTap: () {
                   themeController.setDarkTheme();
-                  Get.back();
+                  Navigator.pop(context);
                 },
               )),
 
@@ -74,7 +74,7 @@ class ThemeSelectionBottomSheet extends StatelessWidget {
                 isSelected: themeController.themeMode == ThemeMode.system,
                 onTap: () {
                   themeController.setSystemTheme();
-                  Get.back();
+                  Navigator.pop(context);
                 },
               )),
 

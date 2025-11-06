@@ -89,7 +89,7 @@ class TSlidingPanelState extends State<TSlidingPanel> {
             margin: const EdgeInsets.all(TSizes.sm),
             backgroundColor: TColors.backgroundLight,
             child: IconButton(
-              onPressed: () => Get.back(),
+              onPressed: () => Navigator.pop(context),
               icon: const Icon(Icons.arrow_back_ios_new_rounded, color: TColors.black),
             ),
           ),

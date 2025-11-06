@@ -41,7 +41,7 @@ class BranchLocationPickerScreen extends StatelessWidget {
                         final location = locationController.currentLocation.value!;
                         final address = locationController.locationAddress.value;
                         onLocationSelected(location, address);
-                        Get.back();
+                        Navigator.pop(context);
                       }
                     : null,
                 child: const Text(
@@ -245,7 +245,7 @@ class BranchLocationPickerScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () => Get.back(),
+                    onPressed: () => Navigator.pop(context),
                     icon: const Icon(Icons.close),
                     label: const Text('Cancel'),
                   ),
@@ -258,7 +258,7 @@ class BranchLocationPickerScreen extends StatelessWidget {
                                 final location = locationController.currentLocation.value!;
                                 final address = locationController.locationAddress.value;
                                 onLocationSelected(location, address);
-                                Get.back();
+                                Navigator.pop(context);
                               }
                             : null,
                         icon: const Icon(Icons.check, color: Colors.white),
