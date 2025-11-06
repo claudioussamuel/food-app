@@ -41,7 +41,7 @@ class BranchSelectionScreen extends StatelessWidget {
                 end: Alignment.bottomRight,
               ),
             ),
-            child: Column(
+            child: const Column(
               children: [
                 const Icon(
                   Icons.store,
