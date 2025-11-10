@@ -5,15 +5,15 @@ import 'package:foodu/utils/constants/colors.dart';
 import 'package:foodu/utils/constants/sizes.dart';
 import 'package:get/get.dart';
 
-/// Dispatcher Management Screen with Full CRUD Operations for Admins
-class DispatcherManagementScreen extends StatefulWidget {
-  const DispatcherManagementScreen({super.key});
+/// Admin Management Screen with Full CRUD Operations
+class ManageAdminsScreen extends StatefulWidget {
+  const ManageAdminsScreen({super.key});
 
   @override
-  State<DispatcherManagementScreen> createState() => _DispatcherManagementScreenState();
+  State<ManageAdminsScreen> createState() => _ManageAdminsScreenState();
 }
 
-class _DispatcherManagementScreenState extends State<DispatcherManagementScreen> {
+class _ManageAdminsScreenState extends State<ManageAdminsScreen> {
   final _profileRepo = ProfileRepository.instance;
   String _searchQuery = '';
 
@@ -21,7 +21,7 @@ class _DispatcherManagementScreenState extends State<DispatcherManagementScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dispatcher Management'),
+        title: const Text('Admin Management'),
         backgroundColor: TColors.primary,
         foregroundColor: Colors.white,
         actions: [
@@ -33,10 +33,10 @@ class _DispatcherManagementScreenState extends State<DispatcherManagementScreen>
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _showAddDispatcherDialog,
+        onPressed: _showAddAdminDialog,
         backgroundColor: TColors.primary,
         icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('Add Dispatcher', style: TextStyle(color: Colors.white)),
+        label: const Text('Add Admin', style: TextStyle(color: Colors.white)),
       ),
       body: Column(
         children: [
@@ -45,7 +45,7 @@ class _DispatcherManagementScreenState extends State<DispatcherManagementScreen>
             padding: const EdgeInsets.all(TSizes.defaultSpace),
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Search dispatchers by name, email, or phone...',
+                hintText: 'Search admins by name, email, or phone...',
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -59,10 +59,10 @@ class _DispatcherManagementScreenState extends State<DispatcherManagementScreen>
             ),
           ),
           
-          // Dispatchers List
+          // Admins List
           Expanded(
             child: StreamBuilder<List<ProfileModel>>(
-              stream: _getDispatchersStream(),
+              stream: _getAdminsStream(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -73,15 +73,15 @@ class _DispatcherManagementScreenState extends State<DispatcherManagementScreen>
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.delivery_dining, size: 64, color: Colors.grey[400]),
+                        Icon(Icons.admin_panel_settings, size: 64, color: Colors.grey[400]),
                         const SizedBox(height: TSizes.md),
                         Text(
-                          'No dispatchers found',
+                          'No admins found',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: TSizes.sm),
                         Text(
-                          'Tap the + button to add a dispatcher',
+                          'Tap the + button to add an admin',
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: Colors.grey,
                           ),
@@ -91,25 +91,25 @@ class _DispatcherManagementScreenState extends State<DispatcherManagementScreen>
                   );
                 }
                 
-                var dispatchers = snapshot.data!;
+                var admins = snapshot.data!;
                 
                 // Apply search filter
                 if (_searchQuery.isNotEmpty) {
-                  dispatchers = dispatchers.where((dispatcher) {
-                    return dispatcher.fullName.toLowerCase().contains(_searchQuery) ||
-                        dispatcher.email.toLowerCase().contains(_searchQuery) ||
-                        dispatcher.phoneNumber.contains(_searchQuery);
+                  admins = admins.where((admin) {
+                    return admin.fullName.toLowerCase().contains(_searchQuery) ||
+                        admin.email.toLowerCase().contains(_searchQuery) ||
+                        admin.phoneNumber.contains(_searchQuery);
                   }).toList();
                 }
                 
-                if (dispatchers.isEmpty) {
+                if (admins.isEmpty) {
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.search_off, size: 64, color: Colors.grey[400]),
                         const SizedBox(height: TSizes.md),
-                        const Text('No dispatchers match your search'),
+                        const Text('No admins match your search'),
                       ],
                     ),
                   );
@@ -117,14 +117,14 @@ class _DispatcherManagementScreenState extends State<DispatcherManagementScreen>
                 
                 return ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: TSizes.defaultSpace),
-                  itemCount: dispatchers.length,
+                  itemCount: admins.length,
                   itemBuilder: (context, index) {
-                    final dispatcher = dispatchers[index];
-                    return _DispatcherCard(
-                      dispatcher: dispatcher,
-                      onEdit: () => _showEditDispatcherDialog(dispatcher),
-                      onDelete: () => _confirmDelete(dispatcher),
-                      onDemote: () => _confirmDemote(dispatcher),
+                    final admin = admins[index];
+                    return _AdminCard(
+                      admin: admin,
+                      onEdit: () => _showEditAdminDialog(admin),
+                      onDelete: () => _confirmDelete(admin),
+                      onDemote: () => _confirmDemote(admin),
                     );
                   },
                 );
@@ -136,29 +136,29 @@ class _DispatcherManagementScreenState extends State<DispatcherManagementScreen>
     );
   }
 
-  /// Get dispatchers stream from Firestore
-  Stream<List<ProfileModel>> _getDispatchersStream() {
+  /// Get admins stream from Firestore
+  Stream<List<ProfileModel>> _getAdminsStream() {
     return _profileRepo.db
         .collection('profiles')
-        .where('role', isEqualTo: 'dispatcher')
+        .where('role', isEqualTo: 'admin')
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => ProfileModel.fromMap(doc.data()))
             .toList());
   }
 
-  /// Show add dispatcher dialog - Promote user to dispatcher
-  void _showAddDispatcherDialog() async {
-    // Get all users who are not dispatchers or admins
+  /// Show add admin dialog - Promote user to admin
+  void _showAddAdminDialog() async {
+    // Get all users who are not admins
     final allProfiles = await _profileRepo.fetchAllItems();
     final availableUsers = allProfiles
-        .where((profile) => profile.role == 'user')
+        .where((profile) => profile.role == 'user' || profile.role == 'dispatcher')
         .toList();
 
     if (availableUsers.isEmpty) {
       Get.snackbar(
         'No Users Available',
-        'All users are already dispatchers or admins',
+        'All users are already admins',
         backgroundColor: TColors.warning,
         colorText: Colors.white,
         icon: const Icon(Icons.info, color: Colors.white),
@@ -172,15 +172,15 @@ class _DispatcherManagementScreenState extends State<DispatcherManagementScreen>
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => _AddDispatcherSheet(users: availableUsers),
+      builder: (context) => _AddAdminSheet(users: availableUsers),
     );
   }
 
-  /// Show edit dispatcher dialog
-  void _showEditDispatcherDialog(ProfileModel dispatcher) {
-    final firstNameController = TextEditingController(text: dispatcher.firstName);
-    final lastNameController = TextEditingController(text: dispatcher.lastName);
-    final phoneController = TextEditingController(text: dispatcher.phoneNumber);
+  /// Show edit admin dialog
+  void _showEditAdminDialog(ProfileModel admin) {
+    final firstNameController = TextEditingController(text: admin.firstName);
+    final lastNameController = TextEditingController(text: admin.lastName);
+    final phoneController = TextEditingController(text: admin.phoneNumber);
 
     showModalBottomSheet(
       context: context,
@@ -205,7 +205,7 @@ class _DispatcherManagementScreenState extends State<DispatcherManagementScreen>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Edit Dispatcher',
+                      'Edit Admin',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: TColors.primary,
@@ -275,17 +275,17 @@ class _DispatcherManagementScreenState extends State<DispatcherManagementScreen>
                           }
 
                           try {
-                            final updatedDispatcher = dispatcher.copyWith(
+                            final updatedAdmin = admin.copyWith(
                               firstName: firstNameController.text.trim(),
                               lastName: lastNameController.text.trim(),
                               phoneNumber: phoneController.text.trim(),
                             );
 
-                            await _profileRepo.updateItem(updatedDispatcher);
+                            await _profileRepo.updateItem(updatedAdmin);
 
                             Get.snackbar(
                               'Success',
-                              'Dispatcher updated successfully',
+                              'Admin updated successfully',
                               backgroundColor: TColors.success,
                               colorText: Colors.white,
                               icon: const Icon(Icons.check_circle, color: Colors.white),
@@ -295,7 +295,7 @@ class _DispatcherManagementScreenState extends State<DispatcherManagementScreen>
                           } catch (e) {
                             Get.snackbar(
                               'Error',
-                              'Failed to update dispatcher: $e',
+                              'Failed to update admin: $e',
                               backgroundColor: Colors.red,
                               colorText: Colors.white,
                             );
@@ -318,14 +318,14 @@ class _DispatcherManagementScreenState extends State<DispatcherManagementScreen>
     );
   }
 
-  /// Confirm delete dispatcher
-  void _confirmDelete(ProfileModel dispatcher) {
+  /// Confirm delete admin
+  void _confirmDelete(ProfileModel admin) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Dispatcher'),
+        title: const Text('Delete Admin'),
         content: Text(
-          'Are you sure you want to delete "${dispatcher.fullName}"? This will permanently remove them from the system.',
+          'Are you sure you want to delete "${admin.fullName}"? This will permanently remove them from the system.',
         ),
         actions: [
           TextButton(
@@ -335,11 +335,11 @@ class _DispatcherManagementScreenState extends State<DispatcherManagementScreen>
           ElevatedButton(
             onPressed: () async {
               try {
-                await _profileRepo.deleteItem(dispatcher);
+                await _profileRepo.deleteItem(admin);
 
                 Get.snackbar(
                   'Success',
-                  'Dispatcher deleted successfully',
+                  'Admin deleted successfully',
                   backgroundColor: TColors.success,
                   colorText: Colors.white,
                   icon: const Icon(Icons.check_circle, color: Colors.white),
@@ -349,7 +349,7 @@ class _DispatcherManagementScreenState extends State<DispatcherManagementScreen>
               } catch (e) {
                 Get.snackbar(
                   'Error',
-                  'Failed to delete dispatcher: $e',
+                  'Failed to delete admin: $e',
                   backgroundColor: Colors.red,
                   colorText: Colors.white,
                 );
@@ -366,14 +366,14 @@ class _DispatcherManagementScreenState extends State<DispatcherManagementScreen>
     );
   }
 
-  /// Confirm demote dispatcher to user
-  void _confirmDemote(ProfileModel dispatcher) {
+  /// Confirm demote admin to user
+  void _confirmDemote(ProfileModel admin) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Demote Dispatcher'),
+        title: const Text('Demote Admin'),
         content: Text(
-          'Are you sure you want to demote "${dispatcher.fullName}" to a regular user? They will lose dispatcher privileges.',
+          'Are you sure you want to demote "${admin.fullName}" to a regular user? They will lose admin privileges.',
         ),
         actions: [
           TextButton(
@@ -383,12 +383,12 @@ class _DispatcherManagementScreenState extends State<DispatcherManagementScreen>
           ElevatedButton(
             onPressed: () async {
               try {
-                final updatedProfile = dispatcher.copyWith(role: 'user');
+                final updatedProfile = admin.copyWith(role: 'user');
                 await _profileRepo.updateItem(updatedProfile);
 
                 Get.snackbar(
                   'Success',
-                  'Dispatcher demoted to user',
+                  'Admin demoted to user',
                   backgroundColor: TColors.success,
                   colorText: Colors.white,
                   icon: const Icon(Icons.check_circle, color: Colors.white),
@@ -398,7 +398,7 @@ class _DispatcherManagementScreenState extends State<DispatcherManagementScreen>
               } catch (e) {
                 Get.snackbar(
                   'Error',
-                  'Failed to demote dispatcher: $e',
+                  'Failed to demote admin: $e',
                   backgroundColor: Colors.red,
                   colorText: Colors.white,
                 );
@@ -418,9 +418,9 @@ class _DispatcherManagementScreenState extends State<DispatcherManagementScreen>
   /// Show statistics
   void _showStatistics() async {
     final allProfiles = await _profileRepo.fetchAllItems();
+    final admins = allProfiles.where((p) => p.role == 'admin').length;
     final dispatchers = allProfiles.where((p) => p.role == 'dispatcher').length;
     final users = allProfiles.where((p) => p.role == 'user').length;
-    final admins = allProfiles.where((p) => p.role == 'admin').length;
 
     showDialog(
       context: context,
@@ -435,9 +435,9 @@ class _DispatcherManagementScreenState extends State<DispatcherManagementScreen>
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _StatRow('Total Users', users.toString(), Icons.people),
-            _StatRow('Total Dispatchers', dispatchers.toString(), Icons.delivery_dining),
             _StatRow('Total Admins', admins.toString(), Icons.admin_panel_settings),
+            _StatRow('Total Dispatchers', dispatchers.toString(), Icons.delivery_dining),
+            _StatRow('Total Users', users.toString(), Icons.people),
             const Divider(),
             _StatRow('Total Profiles', allProfiles.length.toString(), Icons.group),
           ],
@@ -453,17 +453,17 @@ class _DispatcherManagementScreenState extends State<DispatcherManagementScreen>
   }
 }
 
-/// Add Dispatcher Sheet - Promote User to Dispatcher
-class _AddDispatcherSheet extends StatefulWidget {
+/// Add Admin Sheet - Promote User to Admin
+class _AddAdminSheet extends StatefulWidget {
   final List<ProfileModel> users;
 
-  const _AddDispatcherSheet({required this.users});
+  const _AddAdminSheet({required this.users});
 
   @override
-  State<_AddDispatcherSheet> createState() => _AddDispatcherSheetState();
+  State<_AddAdminSheet> createState() => _AddAdminSheetState();
 }
 
-class _AddDispatcherSheetState extends State<_AddDispatcherSheet> {
+class _AddAdminSheetState extends State<_AddAdminSheet> {
   String _searchQuery = '';
   final _profileRepo = ProfileRepository.instance;
 
@@ -492,7 +492,7 @@ class _AddDispatcherSheetState extends State<_AddDispatcherSheet> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Promote User to Dispatcher',
+                'Promote User to Admin',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: TColors.primary,
@@ -506,7 +506,7 @@ class _AddDispatcherSheetState extends State<_AddDispatcherSheet> {
           ),
           const SizedBox(height: TSizes.sm),
           Text(
-            'Select a user to promote to dispatcher role',
+            'Select a user to promote to admin role',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Colors.grey,
             ),
@@ -582,17 +582,33 @@ class _AddDispatcherSheetState extends State<_AddDispatcherSheet> {
                                   Text(user.phoneNumber, style: const TextStyle(fontSize: 12)),
                                 ],
                               ),
+                              Container(
+                                margin: const EdgeInsets.only(top: 4),
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: user.role == 'dispatcher' ? Colors.blue.withOpacity(0.2) : Colors.grey.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  'Current: ${user.role}',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: user.role == 'dispatcher' ? Colors.blue : Colors.grey[700],
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                           trailing: ElevatedButton(
                             onPressed: () async {
                               try {
-                                final updatedProfile = user.copyWith(role: 'dispatcher');
+                                final updatedProfile = user.copyWith(role: 'admin');
                                 await _profileRepo.updateItem(updatedProfile);
 
                                 Get.snackbar(
                                   'Success',
-                                  '${user.fullName} is now a dispatcher',
+                                  '${user.fullName} is now an admin',
                                   backgroundColor: TColors.success,
                                   colorText: Colors.white,
                                   icon: const Icon(Icons.check_circle, color: Colors.white),
@@ -625,15 +641,15 @@ class _AddDispatcherSheetState extends State<_AddDispatcherSheet> {
   }
 }
 
-/// Dispatcher Card Widget
-class _DispatcherCard extends StatelessWidget {
-  final ProfileModel dispatcher;
+/// Admin Card Widget
+class _AdminCard extends StatelessWidget {
+  final ProfileModel admin;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
   final VoidCallback onDemote;
 
-  const _DispatcherCard({
-    required this.dispatcher,
+  const _AdminCard({
+    required this.admin,
     required this.onEdit,
     required this.onDelete,
     required this.onDemote,
@@ -655,9 +671,9 @@ class _DispatcherCard extends StatelessWidget {
                   radius: 30,
                   backgroundColor: TColors.primary,
                   child: Text(
-                    dispatcher.firstName.isNotEmpty 
-                        ? dispatcher.firstName[0].toUpperCase()
-                        : 'D',
+                    admin.firstName.isNotEmpty 
+                        ? admin.firstName[0].toUpperCase()
+                        : 'A',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 24,
@@ -671,7 +687,7 @@ class _DispatcherCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        dispatcher.fullName,
+                        admin.fullName,
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -683,7 +699,7 @@ class _DispatcherCard extends StatelessWidget {
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
-                              dispatcher.email,
+                              admin.email,
                               style: Theme.of(context).textTheme.bodySmall,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -696,7 +712,7 @@ class _DispatcherCard extends StatelessWidget {
                           const Icon(Icons.phone, size: 14, color: Colors.grey),
                           const SizedBox(width: 4),
                           Text(
-                            dispatcher.phoneNumber,
+                            admin.phoneNumber,
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
@@ -711,7 +727,7 @@ class _DispatcherCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Text(
-                    'Dispatcher',
+                    'Admin',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 12,

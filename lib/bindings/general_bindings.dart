@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 
 import '../data/repositories/authentication/authentication_repository.dart';
+import '../data/repositories/personalization/profile_repository.dart';
 import '../data/services/network_service/network_manager.dart';
 import '../features/personalization/controller/pin_controller.dart';
 import '../features/personalization/controller/profile_form_controller.dart';
@@ -18,6 +19,7 @@ class GeneralBindings extends Bindings {
     Get.put(NetworkManager());
     Get.put(PinController());
     Get.put(AuthenticationRepository());
+    Get.put(ProfileRepository());
     Get.put(ThemeController());
     Get.put(LocationController());
     Get.put(CategoryController());

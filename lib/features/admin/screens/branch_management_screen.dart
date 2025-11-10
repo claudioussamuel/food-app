@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:foodu/features/admin/screens/branch_location_picker_screen.dart';
 import 'package:foodu/features/admin/screens/branch_specific_admin_screen.dart';
+import 'package:foodu/features/admin/screens/manage_admins_screen.dart';
+import 'package:foodu/features/dispatcher/screens/dispatcher_management_screen.dart';
 import 'package:foodu/features/home_action_menu/controller/branch_controller.dart';
 import 'package:foodu/features/home_action_menu/model/branch_model.dart';
 import 'package:foodu/utils/constants/colors.dart';
@@ -25,6 +27,39 @@ class BranchManagementScreen extends StatelessWidget {
             onPressed: () => _showBranchStats(context, controller),
             icon: const Icon(Icons.analytics),
             tooltip: 'Branch Statistics',
+          ),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            tooltip: 'Management Options',
+            onSelected: (value) {
+              if (value == 'admins') {
+                Get.to(() => const ManageAdminsScreen());
+              } else if (value == 'dispatchers') {
+                Get.to(() => const DispatcherManagementScreen());
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'admins',
+                child: Row(
+                  children: [
+                    Icon(Icons.admin_panel_settings, size: 20),
+                    SizedBox(width: 12),
+                    Text('Manage Admins'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'dispatchers',
+                child: Row(
+                  children: [
+                    Icon(Icons.delivery_dining, size: 20),
+                    SizedBox(width: 12),
+                    Text('Manage Dispatchers'),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),

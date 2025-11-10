@@ -9,6 +9,9 @@ import 'package:foodu/data/repositories/authentication/authentication_repository
 import '../../../personalization/controller/profile_form_controller.dart'
     show ProfileFormController;
 import '../../../../utils/theme/theme_controller.dart';
+import '../../../admin/screens/manage_admins_screen.dart';
+import '../../../dispatcher/screens/dispatcher_management_screen.dart';
+import '../../../navigation_menu/controller.dart';
 import '../help_center/help_center_screen.dart';
 import '../update_profile/update_profile_screen.dart';
 import 'widget/admin_role_switcher.dart';
@@ -24,6 +27,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeController = Get.find<ThemeController>();
+    final navigationController = Get.find<NavigationController>();
     // Initialize ProfileFormController to access user profile data
     final profileController = Get.put(ProfileFormController(), permanent: true);
 
@@ -70,6 +74,30 @@ class ProfileScreen extends StatelessWidget {
               
               /// Dispatcher View Switcher (only visible for dispatchers)
               const DispatcherViewSwitcherWidget(),
+              
+              /// Admin Management Section (only visible for admins)
+              if (navigationController.isOriginallyAdmin) ...[
+                const Divider(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: TSizes.xs),
+                  child: Text(
+                    'Admin Management',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                ProfileListItem(
+                  icon: Icons.admin_panel_settings,
+                  title: 'Manage Admins',
+                  onTap: () => Get.to(() => const ManageAdminsScreen()),
+                ),
+                ProfileListItem(
+                  icon: Icons.delivery_dining,
+                  title: 'Manage Dispatchers',
+                  onTap: () => Get.to(() => const DispatcherManagementScreen()),
+                ),
+              ],
               
               // const Divider(),
               // ProfileListItem(
